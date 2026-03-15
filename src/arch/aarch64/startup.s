@@ -12,8 +12,14 @@ hang:
     b       hang
 
 master:
-    /* Setup stack */
+    /* Setup stack pointer */
     ldr     x0, =stack_top
     mov     sp, x0
+
+    /* Set the Exception Vector Base Address Register (VBAR_EL1) */
+    ldr     x0, =vectors
+    msr     vbar_el1, x0
+
+    /* Jump to C main */
     bl      main
     b       hang

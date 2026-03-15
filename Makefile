@@ -32,9 +32,12 @@ LDFLAGS = -T linker.ld
 
 # --- Source files ---
 SRCS = arch/aarch64/startup.s \
+       arch/aarch64/vectors.s \
        kernel/main.c \
+       kernel/irq.c \
        drivers/uart.c \
-       drivers/timer.c
+       drivers/timer.c \
+       drivers/gic.c
 
 # --- Object files ---
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
@@ -57,7 +60,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 # Run on QEMU (Using the selected CPU)
 run: $(TARGET)
-	$(QEMU) -M virt -cpu $(QEMU_CPU) -nographic -kernel $(TARGET)
+	$(QEMU) -M virt,gic-version=2 -cpu $(QEMU_CPU) -nographic -kernel $(TARGET)
 
 clean:
 	rm -rf build/

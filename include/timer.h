@@ -2,6 +2,7 @@
 #define TIMER_H
 
 void timer_init(void);
+void timer_reload(void);
 
 #endif
 
