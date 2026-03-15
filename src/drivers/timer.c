@@ -18,7 +18,7 @@ void timer_init(void) {
     /* Enable timer (ENABLE=1, IMASK=0) */
     asm volatile ("msr cntp_ctl_el0, %0" : : "r" (1));
 
-    uart_puts("Generic Timer Initialized (10ms tick).\n");
+    //uart_puts("Generic Timer Initialized (10ms tick).\n");
 }
 
 void timer_reload(void) {

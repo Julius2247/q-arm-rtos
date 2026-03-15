@@ -24,24 +24,25 @@
 #include "uart.h"
 #include "timer.h"
 #include "board.h"
+#include "task.h"
 
 /* GIC CPU Interface Registers */
 #define GICC_IAR  ((volatile unsigned int *)(GIC_CPU_BASE + 0x00C))
 #define GICC_EOIR ((volatile unsigned int *)(GIC_CPU_BASE + 0x010))
 
+/* External definitions from task management */
+extern tcb_t tcb_a;
+extern tcb_t tcb_b;
+extern tcb_t *current_task;
+extern void cpu_switch_to(tcb_t *prev, tcb_t *next);
+
 void irq_handler(void) {
-    /* 1. Read interrupt ID from GIC (acknowledge interrupt) */
     unsigned int irq_id = *GICC_IAR;
-
-    /* 2. Check if the interrupt is from the Physical Timer (ID 30) */
     if (irq_id == 30) {
-        uart_puts("Timer Tick!\n");
-        
-        /* Reload timer for next 10ms tick */
-        timer_reload();
+        uart_puts("|");
+        timer_init();
+        // Toggle task
+        current_task = (current_task == &tcb_a) ? &tcb_b : &tcb_a;
     }
-
-    /* 3. Signal End of Interrupt (EOI) */
-    /* This allows the GIC to send further interrupts */
     *GICC_EOIR = irq_id;
 }
