@@ -1,4 +1,3 @@
-markdown
 # q-arm-rtos
 
 A high-performance, preemptive Real-Time Operating System (RTOS) designed for modern ARM architectures (AArch64/ARMv9). Developed on macOS and optimized for QEMU-based virtualization.
@@ -10,8 +9,8 @@ q-arm-rtos is a scalable, feature-rich RTOS kernel built from scratch. This proj
 ## Technical Specifications
 
 - Architecture: ARMv8-A / ARMv9-A (AArch64)
-- CPU: Cortex-A53 (QEMU Emulated)
-- Platform: QEMU virt machine
+- CPU Support: Cortex-A53 (RPi3 / QEMU), Cortex-A72 (RPi4)
+- Platform: QEMU virt machine, Raspberry Pi 3, Raspberry Pi 4
 - Toolchain: aarch64-elf-gcc (Installed via Homebrew)
 
 ## Directory Structure
@@ -20,6 +19,7 @@ q-arm-rtos is a scalable, feature-rich RTOS kernel built from scratch. This proj
 - src/drivers/: Peripheral drivers (UART, Timer, GIC).
 - src/kernel/: Kernel entry and core scheduling logic.
 - include/: Header files and hardware abstractions.
+- build/: Compilation artifacts categorized by target board.
 
 ## Development Environment
 
@@ -36,17 +36,24 @@ brew install qemu
 ## Compilation and Execution
 
 ### Build the Kernel
-To compile the source code and generate the ELF kernel image:
+The project supports multiple platforms. Use the **BOARD** variable to specify the target.
 
 ```bash
-make
+# Default (QEMU Virt)
+make BOARD=qemu_virt
+
+# Raspberry Pi 3
+make BOARD=rpi3
+
+# Raspberry Pi 4
+make BOARD=rpi4
 ```
 
 ### Run on QEMU
 To launch the RTOS in the QEMU emulator (nographic mode):
 
 ```bash
-make run
+make BOARD=qemu_virt run
 ```
 
 ### Exit QEMU
