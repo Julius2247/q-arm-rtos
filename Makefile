@@ -3,37 +3,46 @@ CC      = $(CROSS_COMPILE)gcc
 LD      = $(CROSS_COMPILE)ld
 QEMU    = qemu-system-aarch64
 
-CFLAGS  = -Wall -Wextra -march=armv8-a -nostdlib -nostartfiles -ffreestanding -Iinclude -g
+# Directory configuration
+SRC_DIR = src
+BUILD_DIR = build
+INC_DIR = include
+
+# Compiler flags
+CFLAGS  = -Wall -Wextra -march=armv8-a -nostdlib -nostartfiles -ffreestanding -I$(INC_DIR) -g
 LDFLAGS = -T linker.ld
 
-# Updated Paths
-SRCS = src/arch/aarch64/startup.s \
-       src/kernel/main.c \
-       src/drivers/uart.c
+# Source files (Relative to SRC_DIR)
+SRCS = arch/aarch64/startup.s \
+       kernel/main.c \
+       drivers/uart.c
 
-# Automatically generate object file list in the same folders
-OBJS = $(SRCS:.s=.o)
-OBJS := $(OBJS:.c=.o)
+# Object files (Placed in BUILD_DIR)
+OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 
-TARGET = q-arm-rtos.elf
+TARGET = $(BUILD_DIR)/q-arm-rtos.elf
 
 all: $(TARGET)
 
+# Link the kernel
 $(TARGET): $(OBJS)
+	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
-# Rule for assembly files
-%.o: %.s
+# Compile Assembly files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.s
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Rule for C files
-%.o: %.c
+# Compile C files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(TARGET)
 	$(QEMU) -M virt -cpu cortex-a53 -nographic -kernel $(TARGET)
 
 clean:
-	rm -f $(OBJS) *.elf
+	rm -rf $(BUILD_DIR)
 
 .PHONY: all run clean
