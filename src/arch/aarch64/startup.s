@@ -14,6 +14,10 @@ hang:
 master:
     /* Setup stack pointer */
     ldr     x0, =stack_top
+    
+    /* Force 16-byte alignment (Clears the lower 4 bits) */
+    /* This is critical for AArch64 C compatibility */
+    and     x0, x0, #~0xF
     mov     sp, x0
 
     /* Set the Exception Vector Base Address Register (VBAR_EL1) */

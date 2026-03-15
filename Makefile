@@ -27,7 +27,7 @@ INC_DIR = include
 # --- Compiler flags ---
 # Added $(BOARD_FLAG) to CFLAGS
 CFLAGS  = -Wall -Wextra -march=armv8-a -nostdlib -nostartfiles -ffreestanding \
-          -I$(INC_DIR) -g $(BOARD_FLAG)
+          -I$(INC_DIR) -g $(BOARD_FLAG) -mgeneral-regs-only
 LDFLAGS = -T linker.ld
 
 # --- Source files ---
@@ -37,6 +37,7 @@ SRCS = arch/aarch64/startup.s \
        kernel/main.c \
        kernel/irq.c \
        kernel/task.c \
+	   kernel/printf.c \
        drivers/uart.c \
        drivers/timer.c \
        drivers/gic.c

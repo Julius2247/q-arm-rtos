@@ -1,8 +1,10 @@
 #include "uart.h"
 #include "timer.h"
+#include "printf.h"
 #include "task.h"
 
 /* Prototypes from other modules */
+extern tcb_t tcb_a;
 void gic_init(void);
 void os_init(void);
 
@@ -14,6 +16,8 @@ void main(void) {
     uart_init();
     uart_puts("q-arm-rtos: System Booting...\n");
 
+    printf("Hello World\n");
+    
     /* 2. Interrupt Controller Setup */
     gic_init();
 
