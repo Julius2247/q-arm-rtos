@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "printf.h"
 #include "task.h"
+#include "malloc.h"
 
 /* Prototypes from other modules */
 extern tcb_t tcb_a;
@@ -14,10 +15,14 @@ extern tcb_t *current_task;
 void main(void) {
     /* 1. Hardware Abstraction Layer Initialization */
     uart_init();
-    uart_puts("q-arm-rtos: System Booting...\n");
+    printf("q-arm-rtos: System Booting...\n");
 
-    printf("Hello World\n");
-    
+    /* Test the new memory allocator */
+    void *test_ptr = kmalloc(1024); // Request 1KB
+    if (test_ptr) {
+        printf("Heap test successful! Pointer at: 0x%x\n", (unsigned long)test_ptr);
+    }
+
     /* 2. Interrupt Controller Setup */
     gic_init();
 

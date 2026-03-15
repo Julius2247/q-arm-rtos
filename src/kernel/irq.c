@@ -1,24 +1,25 @@
 /*
- * ARM Interrupt Pipeline
+ * ARM Interrupt Pipeline & Scheduler Implementation
  *
  * Hardware Interrupt Flow:
  *
- * ARM Generic Timer (Physical Timer)
+ * [Hardware] ARM Generic Timer (Physical Timer)  --> src/drivers/timer.c
  *        ↓
- * GIC (Generic Interrupt Controller)
+ * [Hardware] GIC (Generic Interrupt Controller)  --> src/drivers/gic.c
  *        ↓
- * CPU IRQ Exception
+ * [CPU] CPU IRQ Exception                        --> ARM AArch64 Hardware
  *        ↓
- * Exception Vector Table (vectors.s)
+ * [Arch] Exception Vector Table (VBAR_EL1)       --> src/arch/aarch64/vectors.s
  *        ↓
- * handle_irq (assembly entry)
+ * [Arch] handle_irq (Assembly Context Saving)    --> src/arch/aarch64/vectors.s
  *        ↓
- * irq_handler()  ← interrupt dispatcher
+ * [Kernel] irq_handler() (C-level Dispatcher)    --> src/kernel/irq.c
  *        ↓
- * Device-specific handler (timer driver)
+ * [Sched] Task Switching (Scheduler)             --> src/arch/aarch64/switch.s
  *
  * In this RTOS:
- * Physical Timer interrupt ID = 30 (PPI)
+ * - Physical Timer interrupt ID = 30 (PPI)
+ * - Time Slice = 10ms
  */
  
 #include "uart.h"

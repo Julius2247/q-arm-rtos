@@ -38,6 +38,7 @@ SRCS = arch/aarch64/startup.s \
        kernel/irq.c \
        kernel/task.c \
 	   kernel/printf.c \
+	   kernel/malloc.c \
        drivers/uart.c \
        drivers/timer.c \
        drivers/gic.c
