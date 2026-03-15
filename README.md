@@ -4,22 +4,31 @@ A high-performance, preemptive Real-Time Operating System (RTOS) designed for mo
 
 ## Overview
 
-q-arm-rtos is a scalable, feature-rich RTOS kernel built from scratch. This project leverages the advanced features of modern ARM processors, providing a robust foundation for embedded systems and virtualization research.
+q-arm-rtos is a scalable, feature-rich RTOS kernel built from scratch. This project leverages the advanced features of modern ARM processors, providing a robust foundation for embedded systems and multitasking research.
+
+## Core Features (Achieved)
+
+- **Preemptive Multitasking**: Priority-based scheduling with 10ms time-slicing.
+- **Full Context Switching**: Complete saving and restoration of AArch64 registers (x0-x30), ELR_EL1, and SPSR_EL1.
+- **Interrupt Pipeline**: Integrated support for GICv2 (Generic Interrupt Controller) and AArch64 Generic Timer.
+- **Exception Vector Table**: Robust handling of IRQ and synchronous exceptions in EL1.
+- **Multi-Board Support**: Common hardware abstraction layer (HAL) for QEMU and Raspberry Pi.
 
 ## Technical Specifications
 
-- Architecture: ARMv8-A / ARMv9-A (AArch64)
-- CPU Support: Cortex-A53 (RPi3 / QEMU), Cortex-A72 (RPi4)
-- Platform: QEMU virt machine, Raspberry Pi 3, Raspberry Pi 4
-- Toolchain: aarch64-elf-gcc (Installed via Homebrew)
+- **Architecture**: ARMv8-A / ARMv9-A (AArch64)
+- **CPU Support**: Cortex-A53 (RPi3 / QEMU), Cortex-A72 (RPi4)
+- **Privilege Level**: Runs in Exception Level 1 (EL1)
+- **Platform**: QEMU virt machine, Raspberry Pi 3, Raspberry Pi 4
+- **Toolchain**: aarch64-elf-gcc (Version 15.2.0+)
 
 ## Directory Structure
 
-- src/arch/aarch64/: Boot code and architecture-specific logic.
-- src/drivers/: Peripheral drivers (UART, Timer, GIC).
-- src/kernel/: Kernel entry and core scheduling logic.
-- include/: Header files and hardware abstractions.
-- build/: Compilation artifacts categorized by target board.
+- `src/arch/aarch64/`: Boot code, Exception Vectors, and Context Switching logic.
+- `src/drivers/`: Peripheral drivers (UART, Generic Timer, GICv2).
+- `src/kernel/`: Kernel entry, IRQ dispatcher, and Task management.
+- `include/`: Header files and hardware register definitions.
+- `build/`: Compilation artifacts categorized by target board.
 
 ## Development Environment
 
