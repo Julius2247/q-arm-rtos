@@ -1,65 +1,7 @@
-// src/arch/aarch64/vectors.s
-/*
- * AArch64 Exception Vector Table
- *
- * CPU jumps here when an exception or interrupt occurs.
- * IRQ entry calls handle_irq, which dispatches interrupts
- * to the C-level irq_handler().
- */
+/* src/arch/aarch64/vectors.s */
 
-.section ".text.vectors"
-.align 11
-
-.global vectors
-vectors:
-    // Current EL with SP0
-    .align 7
-    b handle_invalid_exception // Synchronous
-    .align 7
-    b handle_invalid_exception // IRQ
-    .align 7
-    b handle_invalid_exception // FIQ
-    .align 7
-    b handle_invalid_exception // SError
-
-    // Current EL with SPx
-    .align 7
-    b handle_invalid_exception // Synchronous
-    .align 7
-    b handle_irq               // IRQ - This is where Timer lands
-    .align 7
-    b handle_invalid_exception // FIQ
-    .align 7
-    b handle_invalid_exception // SError
-
-    // Lower EL (AArch64)
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-
-    // Lower EL (AArch32)
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-    .align 7
-    b handle_invalid_exception
-
-handle_invalid_exception:
-    b handle_invalid_exception
-
-// src/arch/aarch64/vectors.s
-
-handle_irq:
-    /* 1. Context Saving: Save all 31 registers (x0-x30) */
-    /* Total size: 34 slots * 8 bytes = 272 bytes (16-byte aligned) */
+/* --- 1. MACRO DEFINITIONS (Must be at the very top) --- */
+.macro kernel_entry
     sub     sp, sp, #272
     stp     x0,  x1,  [sp, #16 * 0]
     stp     x2,  x3,  [sp, #16 * 1]
@@ -78,33 +20,26 @@ handle_irq:
     stp     x28, x29, [sp, #16 * 14]
     str     x30, [sp, #16 * 15]
 
-    /* 2. Save Exception State (ELR and SPSR) */
-    /* These define WHERE to return and HOW to return (mode/flags) */
-    mrs     x0, elr_el1
-    mrs     x1, spsr_el1
-    stp     x0, x1, [sp, #16 * 16]
+    mrs     x10, elr_el1
+    mrs     x11, spsr_el1
+    stp     x10, x11, [sp, #16 * 16]
 
-    /* 3. Update Current Task's TCB with the new SP */
-    ldr     x0, =current_task
-    ldr     x1, [x0]             /* x1 = address of old TCB */
-    mov     x2, sp
-    str     x2, [x1]             /* old_tcb->sp = sp */
+    ldr     x10, =current_task
+    ldr     x11, [x10]
+    mov     x12, sp
+    str     x12, [x11]
+.endm
 
-    /* 4. Call C-level Interrupt Handler to pick the next task */
-    bl      irq_handler
+.macro kernel_exit
+    ldr     x10, =current_task
+    ldr     x11, [x10]
+    ldr     x12, [x11]
+    mov     sp, x12
 
-    /* 5. Switch to the NEW current_task's stack */
-    ldr     x0, =current_task
-    ldr     x1, [x0]             /* x1 = address of next TCB */
-    ldr     x2, [x1]             /* x2 = next_tcb->sp */
-    mov     sp, x2
+    ldp     x10, x11, [sp, #16 * 16]
+    msr     elr_el1, x10
+    msr     spsr_el1, x11
 
-    /* 6. Context Restore: Restore Exception State */
-    ldp     x0, x1, [sp, #16 * 16]
-    msr     elr_el1, x0
-    msr     spsr_el1, x1
-
-    /* 7. Context Restore: Restore all 31 registers */
     ldr     x30, [sp, #16 * 15]
     ldp     x28, x29, [sp, #16 * 14]
     ldp     x26, x27, [sp, #16 * 13]
@@ -122,6 +57,53 @@ handle_irq:
     ldp     x2,  x3,  [sp, #16 * 1]
     ldp     x0,  x1,  [sp, #16 * 0]
     add     sp, sp, #272
-
-    /* 8. Jump to next task using Exception Return */
     eret
+.endm
+
+/* --- 2. VECTOR TABLE --- */
+.section ".text.vectors"
+.align 11
+.global vectors
+vectors:
+    /* Case 1: Current EL with SP0 (0x000-0x180) */
+    .align 7
+    b handle_invalid_exception
+    .align 7
+    b handle_invalid_exception
+    .align 7
+    b handle_invalid_exception
+    .align 7
+    b handle_invalid_exception
+
+    /* Case 2: Current EL with SPx (0x200-0x380) */
+    .align 7
+    b handle_sync     /* 0x200: SVC */
+    .align 7
+    b handle_irq      /* 0x280: Timer */
+    .align 7
+    b handle_invalid_exception
+    .align 7
+    b handle_invalid_exception
+
+    /* Case 3: Lower EL AArch64 (0x400-0x580) */
+    .align 7
+    .space 128 * 4
+    
+    /* Case 4: Lower EL AArch32 (0x600-0x780) */
+    .align 7
+    .space 128 * 4
+
+/* --- 3. EXCEPTION HANDLERS --- */
+handle_invalid_exception:
+    b handle_invalid_exception
+
+handle_sync:
+    kernel_entry
+    mov     x0, #'!'
+    bl      uart_putc
+    kernel_exit
+
+handle_irq:
+    kernel_entry
+    bl      irq_handler
+    kernel_exit

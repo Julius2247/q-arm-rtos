@@ -33,6 +33,9 @@ void task_init_context(tcb_t *tcb, uint64_t *stack_top, void (*func)(void)) {
 void task_a(void) {
     while (1) {
         uart_puts("A"); 
+
+        asm volatile ("svc #0"); 
+
         for (volatile int i = 0; i < 2000000; i++); // Busy wait
         // REMOVE manual cpu_switch_to here!
     }
