@@ -12,19 +12,20 @@ tcb_t *current_task;
 extern void cpu_switch_to(tcb_t *prev, tcb_t *next);
 
 void task_init_context(tcb_t *tcb, uint64_t *stack_top, void (*func)(void)) {
-    uint64_t *sp = stack_top;
+    uint64_t *sp = (uint64_t *)((uint64_t)stack_top & ~0xF);
+    sp -= 34; 
 
-    // Reserve 34 slots (272 bytes)
-    sp -= 34;
-
-    // Zero all
     for (int i = 0; i < 34; i++) sp[i] = 0;
 
-    // sp[30] = x30, sp[32] = elr_el1, sp[33] = spsr_el1
-    sp[32] = (uint64_t)func; // Where to start
-    sp[33] = 0x05;           // SPSR_EL1: EL1h with interrupts enabled
+    sp[32] = (uint64_t)func; /* ELR_EL1 */
+    sp[33] = 0x05;           /* SPSR_EL1 (EL1h + IRQ enabled) */
+    sp[30] = (uint64_t)func; /* x30 (LR) */
 
     tcb->sp = sp;
+    
+    /* --- New Initializations --- */
+    tcb->state = TASK_READY;
+    tcb->sleep_ticks = 0;
 }
 
 

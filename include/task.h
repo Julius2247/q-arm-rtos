@@ -3,15 +3,22 @@
 
 #include <stdint.h>
 
-/* Task Control Block (TCB) - The identity of a task */
+/* Task State Definitions */
+#define TASK_READY      0
+#define TASK_SLEEPING   1
+
+/**
+ * Task Control Block (TCB)
+ * Contains the execution context and scheduling state for a task.
+ */
 typedef struct {
-    uint64_t *sp;       /* Current Stack Pointer (Where registers are saved) */
-    uint32_t state;     /* 0: Ready, 1: Running */
+    uint64_t *sp;           /* Current stack pointer */
+    volatile uint32_t state;         /* Task execution state */
+    volatile uint32_t sleep_ticks;   /* Ticks remaining to sleep (1 tick = 10ms) */
 } tcb_t;
 
-/* We'll start with 2 simple tasks */
-void task_create(void (*task_func)(void));
-void scheduler(void);
+/* Task Management Prototypes */
+void os_init(void);
+void task_init_context(tcb_t *tcb, uint64_t *stack_top, void (*task_func)(void));
 
 #endif
-

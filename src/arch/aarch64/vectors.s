@@ -98,10 +98,27 @@ handle_invalid_exception:
     b handle_invalid_exception
 
 handle_sync:
-    kernel_entry
-    mov     x0, #'!'
-    bl      uart_putc
-    kernel_exit
+    kernel_entry            /* Save full register context to stack */
+
+    /* 
+     * Prepare arguments for C function: 
+     * void syscall_handler(unsigned long id, unsigned long arg0)
+     *
+     * Following AArch64 Calling Convention:
+     * x0: 1st argument (Syscall ID)
+     * x1: 2nd argument (First parameter, e.g., ms)
+     *
+     * Data is retrieved from the saved stack frame:
+     * [sp, #64] contains original x8 (Syscall ID)
+     * [sp, #0]  contains original x0 (Argument 0)
+     */
+    ldr     x0, [sp, #64]    /* Load original x8 into x0 */
+    ldr     x1, [sp, #0]     /* Load original x0 into x1 */
+
+    bl      syscall_handler  /* Jump to C-level syscall dispatcher */
+
+    kernel_exit             /* Restore context and return to task (eret) */
+
 
 handle_irq:
     kernel_entry
